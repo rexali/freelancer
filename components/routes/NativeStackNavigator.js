@@ -57,6 +57,7 @@ import Menu from '../screens/Menu';
 import { Alert, TouchableOpacity, } from 'react-native';
 import 'react-native-gesture-handler';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import OverlayModal from "../widgets/OverlayModal"
 
 const NativeStack = createNativeStackNavigator();
 
@@ -102,7 +103,7 @@ export const AuthContext = createContext();
 export default function NativeSatckNavigator() {
 
     const isMobile = useMediaQuery({
-        maxDeviceWidth: 1224,// alternatively..// query: "(max-device-width: 1224px)"
+        maxDeviceWidth: 1023,// alternatively..// query: "(max-device-width: 1224px)"
     });
 
     const [state, dispatch] = useReducer(reducer, init);
@@ -161,11 +162,128 @@ export default function NativeSatckNavigator() {
         bootstrapAsync();
     }, [])
 
+
+
     return (
         <AuthContext.Provider value={authContext}>
             <NativeStack.Navigator>
-                {isMobile ? (
-                    Platform.OS === 'android' ? (
+                {
+                    Platform.OS === 'web' ? (
+                        <NativeStack.Group>
+                            <NativeStack.Screen
+                                name='Home'
+                                // component={DrawerNavigator}
+                                component={Home}
+                                options={({ navigation: { navigate } }) => ({
+                                    title: '',
+                                    headerShown: true,
+                                    // headerTitle: (props) => <LogoTitle {...props} />,
+                                    // headerLeft:(props)=>(<LogoTitle {...props} />),
+                                    headerLeft: () => (
+                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                            <TouchableHighlight
+                                                activeOpacity={0.9}
+                                                underlayColor="#DDDDDD"
+                                                onPress={() => window.location.reload()}
+                                                style={style.button}><Text style={{ fontWeight: 'bold' }}>KULWEK</Text></TouchableHighlight>
+
+                                            {
+                                                !isMobile && (
+                                                    <>
+                                                        <TouchableHighlight
+                                                            activeOpacity={0.9}
+                                                            underlayColor="#DDDDDD"
+                                                            onPress={() => navigate('About')}
+                                                            style={style.button}><Text>About</Text></TouchableHighlight>
+
+                                                        <TouchableHighlight
+                                                            activeOpacity={0.9}
+                                                            underlayColor="#DDDDDD"
+                                                            onPress={() => navigate('Contact')}
+                                                            style={style.button}><Text>Contact</Text></TouchableHighlight>
+
+                                                        <TouchableHighlight
+                                                            activeOpacity={0.9}
+                                                            underlayColor="#DDDDDD"
+                                                            // onPress={() => alert('This is a button!')}
+                                                            style={style.button}><Anchor href="https://google.com">Blog</Anchor></TouchableHighlight>
+                                                    </>)
+                                            }
+                                        </View>
+                                    ),
+
+                                    headerRight: () => (
+                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+
+                                            {
+
+                                                !isMobile &&
+                                                (<>
+                                                    <TouchableHighlight
+                                                        activeOpacity={0.9}
+                                                        underlayColor="#DDDDDD"
+                                                        onPress={() => { navigate('Signin', {}) }}
+                                                        title='info'
+                                                        style={style.buttonDesktop}>
+                                                        <Text>Sign in</Text>
+                                                    </TouchableHighlight>
+
+                                                    <TouchableHighlight
+                                                        activeOpacity={0.9}
+                                                        underlayColor="#DDDDDD"
+                                                        onPress={() => {
+                                                            authContext.signOut();
+                                                            navigate('Home', {})
+                                                            // Toast.show('Sign ou successful.', {
+                                                            //     duration: Toast.durations.SHORT,
+                                                            // }); 
+                                                        }}
+                                                        style={style.buttonDesktop}>
+                                                        <Text>Sign out</Text>
+                                                    </TouchableHighlight>
+                                                </>)
+
+                                            }
+
+                                            {
+                                                (() => {
+                                                    const overlayBody = (
+                                                        <>
+                                                            <TouchableHighlight
+                                                                activeOpacity={0.9}
+                                                                underlayColor="#DDDDDD"
+                                                                onPress={() => { navigate('Signin', {}) }}
+                                                                title='info'
+                                                                >
+                                                                <Text style={style.overlayButton}>Sign in</Text>
+                                                            </TouchableHighlight>
+
+                                                            <TouchableHighlight
+                                                                activeOpacity={0.9}
+                                                                underlayColor="#DDDDDD"
+                                                                onPress={() => {
+                                                                    authContext.signOut();
+                                                                    navigate('Home', {})
+                                                                    // Toast.show('Sign ou successful.', {
+                                                                    //     duration: Toast.durations.SHORT,
+                                                                    // }); 
+                                                                }}>
+                                                                <Text style={style.overlayButton}>Sign out</Text>
+                                                            </TouchableHighlight>
+                                                        </>
+                                                    );
+                                                    return isMobile && (<OverlayModal overlayBody={overlayBody}  />)
+                                                })()
+                                            }
+                                            {/* <DropdownPicker navigate={navigate} /> */}
+                                        </View>)
+                                })}
+                            />
+                            {/* Mount these components below when it is desktop */}
+                            <NativeStack.Screen name="Signin" component={SignIn} />
+                            <NativeStack.Screen name="Signup" component={SignUp} />
+                        </NativeStack.Group>
+                    ) : (
                         // check if user token or user id is defined
                         state.userToken !== null ? (
                             // Screens for logged-in users
@@ -226,142 +344,8 @@ export default function NativeSatckNavigator() {
                                 <NativeStack.Screen name="Signup" component={SignUp} />
                             </NativeStack.Group>
                         )
-
-                        // home screen for mobile web
-                    ) : (<NativeStack.Screen
-                        // name="Root" component={DrawerNavigator}
-                        name="KULWEK" component={Home}
-                        options={({ navigation: { navigate } }) => ({
-                            headerShown: true,
-                            headerRight: () => (
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-
-                                    <TouchableHighlight
-                                        activeOpacity={0.9}
-                                        underlayColor="#DDDDDD"
-                                        onPress={() => state.userToken !== null ? navigate('Notifications') : navigate('Signin', { page: 'Notifications' })}
-                                        title='info'
-                                        style={style.buttonDesktop}><Text><MaterialIcons name="notifications-none" size={20} /></Text></TouchableHighlight>
-
-                                    <TouchableHighlight
-                                        activeOpacity={0.9}
-                                        underlayColor="#DDDDDD"
-                                        onPress={() => {
-                                            authContext.signOut();
-                                            navigate('Home', {})
-                                            // Toast.show('Sign ou successful.', {
-                                            //     duration: Toast.durations.SHORT,
-                                            // }); 
-                                        }}
-                                        style={style.buttonDesktop}><Text>Sign out</Text></TouchableHighlight>
-
-                                    <TouchableHighlight
-                                        activeOpacity={0.9}
-                                        underlayColor="#DDDDDD"
-                                        onPress={() => { navigate('Signin', {}) }}
-                                        title='info'
-                                        style={style.buttonDesktop}><Text>Sign in</Text></TouchableHighlight>
-
-                                </View>
-
-                            )
-                        })} />)
-
-                ) : (
-                    // Home screen for desktop web
-                    <NativeStack.Group>
-                        <NativeStack.Screen
-                            name='Home'
-                            // component={DrawerNavigator}
-                            component={Home}
-                            options={({ navigation: { navigate } }) => ({
-                                title: '',
-                                headerShown: true,
-                                // headerTitle: (props) => <LogoTitle {...props} />,
-                                // headerLeft:(props)=>(<LogoTitle {...props} />),
-                                headerLeft: () => (
-                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                        <TouchableHighlight
-                                            activeOpacity={0.9}
-                                            underlayColor="#DDDDDD"
-                                            onPress={() => window.location.reload()}
-                                            style={style.button}><Text style={{ fontWeight: 'bold' }}>KULWEK</Text></TouchableHighlight>
-
-                                        <TouchableHighlight
-                                            activeOpacity={0.9}
-                                            underlayColor="#DDDDDD"
-                                            onPress={() => navigate('About')}
-                                            style={style.button}><Text>About</Text></TouchableHighlight>
-
-                                        <TouchableHighlight
-                                            activeOpacity={0.9}
-                                            underlayColor="#DDDDDD"
-                                            onPress={() => navigate('Contact')}
-                                            style={style.button}><Text>Contact</Text></TouchableHighlight>
-
-                                        <TouchableHighlight
-                                            activeOpacity={0.9}
-                                            underlayColor="#DDDDDD"
-                                            // onPress={() => alert('This is a button!')}
-                                            style={style.button}><Anchor href="https://google.com">Blog</Anchor></TouchableHighlight>
-                                    </View>),
-
-                                headerRight: () => (
-                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-
-                                        <TouchableHighlight
-                                            activeOpacity={0.9}
-                                            underlayColor="#DDDDDD"
-                                            onPress={() => state.userToken !== null ? navigate('Account') : navigate('Signin', { page: 'Account' })}
-                                            style={style.buttonDesktop}><Text><MaterialIcons name="mail-outline" size={20} /></Text></TouchableHighlight>
-
-                                        <TouchableHighlight
-                                            activeOpacity={0.9}
-                                            underlayColor="#DDDDDD"
-                                            onPress={() => state.userToken !== null ? navigate('Account') : navigate('Signin', { page: 'Account' })}
-                                            style={style.buttonDesktop}><Text>Account</Text></TouchableHighlight>
-
-
-                                        <TouchableHighlight
-                                            activeOpacity={0.9}
-                                            underlayColor="#DDDDDD"
-                                            onPress={() => state.userToken !== null ? navigate('Favourite') : navigate('Signin', { page: 'Favourite' })}
-                                            style={style.buttonDesktop}><Text><MaterialIcons name="favorite-border" size={20} /></Text></TouchableHighlight>
-
-                                        <TouchableHighlight
-                                            activeOpacity={0.9}
-                                            underlayColor="#DDDDDD"
-                                            onPress={() => state.userToken !== null ? navigate('Notifications') : navigate('Signin', { page: 'Notifications' })}
-                                            title='info'
-                                            style={style.buttonDesktop}><Text><MaterialIcons name="notifications-none" size={20} /></Text></TouchableHighlight>
-
-                                        <TouchableHighlight
-                                            activeOpacity={0.9}
-                                            underlayColor="#DDDDDD"
-                                            onPress={() => { navigate('Signin', {}) }}
-                                            title='info'
-                                            style={style.buttonDesktop}><Text>Sign in</Text></TouchableHighlight>
-
-                                        <TouchableHighlight
-                                            activeOpacity={0.9}
-                                            underlayColor="#DDDDDD"
-                                            onPress={() => {
-                                                authContext.signOut();
-                                                navigate('Home', {})
-                                                // Toast.show('Sign ou successful.', {
-                                                //     duration: Toast.durations.SHORT,
-                                                // }); 
-                                            }}
-                                            style={style.buttonDesktop}><Text>Sign out</Text></TouchableHighlight>
-                                        {/* <DropdownPicker navigate={navigate} /> */}
-                                    </View>)
-                            })}
-                        />
-                        {/* Mount these components below when it is desktop */}
-                        <NativeStack.Screen name="Signin" component={SignIn} />
-                        <NativeStack.Screen name="Signup" component={SignUp} />
-                    </NativeStack.Group>
-                )}
+                    )
+                }
 
                 {/* Common modal screens */}
                 <NativeStack.Group screenOptions={{ presentation: 'modal' }}>
@@ -469,7 +453,12 @@ const style = StyleSheet.create({
     },
     buttonDesktop: {
         marginRight: 5,
-        // backgroundColor: 'white',
         padding: 2
+    },
+    overlayButton:{
+        margin:5,
+        backgroundColor: 'blue',
+        color:'white',
+        padding: 10 
     }
 })

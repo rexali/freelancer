@@ -20,7 +20,7 @@ const Signin = ({ navigation, route }) => {
   const [email, setEmail] = useState('');
   const { signIn } = React.useContext(AuthContext);
   const isMobileDevice = useMediaQuery({
-    maxDeviceWidth: 1224,// alternatively..// query: "(max-device-width: 1224px)"
+    maxDeviceWidth: 1023,// alternatively..// query: "(max-device-width: 1224px)"
   });
 
   const loggedIn = () => {
@@ -54,10 +54,10 @@ const Signin = ({ navigation, route }) => {
         secureTextEntry={true}
       />
 
-      <OverlayModal overlayBody={"I am testing you, "} />
+      {/* <OverlayModal overlayBody={"I am testing you oo, "} />
       <ModalReal />
       <TooltipModal toolTipBody={"I am the tool tip"} />
-      <DropdownPicker />
+      <DropdownPicker /> */}
 
       {/* <Button title="Sign in" onPress={() => loggedIn()} /> */}
       <Button
@@ -66,7 +66,9 @@ const Signin = ({ navigation, route }) => {
           signIn({ email, password });
           !isMobileDevice ? 
           navigation.navigate(route.params.page?route.params.page:'Home', {}) 
-          : () => { }
+          : () => {
+            navigation.navigate('Home', {}) 
+           }
         }} />
       <View>
         <Text>Don't have an account? </Text>
