@@ -13,6 +13,7 @@ import Finances from '../screens/Finances';
 import Projects from '../screens/Projects';
 import Messages from '../screens/Messages';
 
+
 import colors from '../../utils/colors';
 
 const getTabBarIcon = icon => ({ tintColor }) => (
@@ -26,7 +27,7 @@ const BottomTabNavigator = () => {
     <Tab.Navigator>
 
       <Tab.Screen
-        name="Home"
+        name="Explore"
         component={Home}
         options={{
           title: "Explore",

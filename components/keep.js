@@ -374,3 +374,136 @@
        //            <NativeStack.Screen name="Signup" component={SignUp} />
        //        </NativeStack.Group>
        //    )}
+
+       // return (
+//   <SafeAreaView>
+//     {/* desktop view */}
+//     <TextInput
+//       placeholder=" Search ..."
+//       style={{ borderWidth: 1, marginTop:10, borderRadius: 10, height: 35, width: 360, margin: 'auto', opacity: 0.6, }}
+//       onFocus={() => navigation.navigate("Search")} 
+//       />
+
+//     <View style={{ flexDirection: 'row' }}>
+
+//        <View style={{ flex: 5, alignItems: 'flex-start', justifyContent: 'container', marginLeft: 10 }}>
+//        {/* <FlatList
+//           extraData={[isMobile]}
+//           data={data?.freelancers.slice(0, 3)}
+//           renderItem={renderServiceCardItem}
+//           keyExtractor={(item) => item.id}
+//           initialNumToRender={3}
+//           horizontal={true}
+//           ListHeaderComponent={() => (
+//             <View><Text>Featured offers</Text></View>
+//           )}
+//           ListEmptyComponent={() =>
+//             <View><Text>No featured offers</Text></View>
+//           }
+//           ListFooterComponent={() => <View style={{ marginLeft: 20 }}><Button title={`See all`} /></View>}
+//           showsHorizontalScrollIndicator={false}
+//         />
+
+//         <FlatList
+//           extraData={[isMobile]}
+//           data={data?.freelancers.slice(0, 3)}
+//           renderItem={renderServiceCardItem}
+//           keyExtractor={(item) => item.id}
+//           initialNumToRender={1}
+//           horizontal={true}
+//           ListHeaderComponent={() =>
+//             <View><Text>Popular categories</Text></View>
+//           }
+//           ListEmptyComponent={() =>
+//             <View><Text>No featured popular categories yet</Text></View>
+//           }
+//           ListFooterComponent={() => <View><Button title={`See all`} /></View>}
+//           showsHorizontalScrollIndicator={false}
+//         />
+
+//         <FlatList
+//           extraData={[isMobile]}
+//           data={data?.freelancers.slice(0, 3)}
+//           renderItem={renderServiceCardItem}
+//           keyExtractor={(item) => item.id}
+//           initialNumToRender={1}
+//           horizontal={true}
+//           ListHeaderComponent={() =>
+//             <View><Text>Popular freelancers</Text></View>
+//           }
+//           ListEmptyComponent={() =>
+//             <View><Text>No featured popular freelancer yet</Text></View>
+//           }
+//           ListFooterComponent={() => <View><Button title={`See all`} /></View>}
+//           showsHorizontalScrollIndicator={false}
+//         />
+
+{/* <SectionList
+          sections={productByCategory(data?.freelancers)}
+          inverted={false}
+          extraData={[isMobile]}
+          initialNumToRender={1}
+          stickySectionHeadersEnabled={true}
+          keyExtractor={(item, index) => item + index}
+          renderItem={renderServiceCardItem}      //{({ item }) => <Item title={item} />}
+          renderSectionFooter={({ section: { title } }) => <View style={{ alignItems: 'container' }}><Pressable style={{ backgroundColor: 'brown', maxWidth: 180, borderRadius: 10, }} onPress={() => navigation.navigate("Offers", { title: title })}><Text style={styles.header, styles.viewmore} numberOfLines={1}>View more {title.toLowerCase()}</Text></Pressable></View>}
+          renderSectionHeader={({ section: { title } }) => (
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Pressable onPress={() => navigation.navigate("Offers", { title: title })}><Text style={styles.header}>{title}</Text></Pressable>
+              <Pressable onPress={() => navigation.navigate("Offers", { title: title })}><Text style={styles.header}>View All</Text></Pressable>
+            </View>
+          )}
+        /> */}
+{/* <ExchangeRates /> */ }
+
+//         <FlatList
+//           extraData={[isMobile]}
+//           data={[]}
+//           renderItem={renderServiceCardItem}
+//           keyExtractor={(item) => item.id}
+//           initialNumToRender={1}
+//           horizontal={true}
+//           ListHeaderComponent={() =>
+//             <View><Text>Recommendations</Text></View>
+//           }
+//           ListEmptyComponent={() =>
+//             <View style={{ margin: 30 }}><Text>No recommendations yet</Text></View>
+//           }
+//           ListFooterComponent={() => false && <View><Button title={`See all`} /></View>}
+//           showsHorizontalScrollIndicator={false}
+//         />
+
+//         <FlatList
+//           extraData={[isMobile]}
+//           data={[]}
+//           renderItem={renderServiceCardItem}
+//           keyExtractor={(item) => item.id}
+//           initialNumToRender={1}
+//           horizontal={true}
+//           ListHeaderComponent={() =>
+//             <View><Text>Recently views</Text></View>
+//           }
+//           ListEmptyComponent={() =>
+//             <View style={{ margin: 50 }}><Text>No recently view item yet</Text></View>
+//           }
+//           ListFooterComponent={() => false && <View><Button title={`See all`} /></View>}
+//           showsHorizontalScrollIndicator={false}
+//         /> */}
+
+//       </View>
+//     </View>
+//   </SafeAreaView>
+// );
+
+
+// const client = new ApolloClient({
+//   // uri: "http://localhost:4000/graphql",
+//   link,
+//   // uri: "https://48p1r2roz4.sse.codesandbox.io",
+//   cache: new InMemoryCache(),
+//   // headers: {  
+//   //   authorization: localStorage.getItem('token') || '',
+//   //   'client-name': 'Space Explorer [web]',
+//   //   'client-version': '1.0.0',
+//   // },
+// });

@@ -24,7 +24,6 @@ export default function OfferDetail({ navigation, ...props }) {
     let [question, setQuestion] = useState(false)
     const [isChecked, setChecked] = useState(false);
 
-
     const
         name = 'Aliyu Bell',
         rating = 5,
@@ -45,7 +44,6 @@ export default function OfferDetail({ navigation, ...props }) {
         reviewerDate = "12 Dec",
         message = "God will help you",
         numReviews = '200'
-    // } = data;
 
     const buyService = (vendor_id, user_id) => {
 

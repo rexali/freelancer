@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet, Text } from "react-native";
-import FreelancerCardItem from "../widgets/FreelancerCardItem";
+import FreelancerCardItem from "../widgets/ServiceCardItem";
 
 const Favourites = ({navigation}) => {
   return (

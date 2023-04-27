@@ -16,19 +16,22 @@ import {
     TouchableHighlight,
     Platform,
 } from 'react-native';
+
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 // import {Link, useLinkTo} from '@react-navigation/native';
 import '@expo/match-media'
 import { useMediaQuery } from "react-responsive";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
-import Home from "../screens/Home";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
+
 import Details from "../screens/Details";
 import Favorites from '../screens/Favourites';
 import BottomTabNavigator from './TabNavigator';
 import Profile from '../screens/Profile';
 import FreelancerProfile from '../screens/FreelancerProfile';
-import Search from '../screens/search';
+import Search from '../screens/Search';
 import Finances from '../screens/Finances';
 import Projects from '../screens/Projects';
 import Chats from '../screens/Chats';
@@ -37,7 +40,8 @@ import Settings from '../screens/Settings';
 import ProjectAdd from '../screens/ProjectAdd';
 import FinanceAdd from '../screens/FinanceAdd';
 
-import DrawerNavigator from './DrawerNavigator';
+import DashboardDrawer from './DashboardDrawer';
+import HomeDrawer from './HomeDrawer';
 import OfferDetail from '../screens/OfferDetail';
 import OfferQuestion from '../screens/OfferQuestion';
 import OfferRequest from '../screens/OfferRequest';
@@ -46,18 +50,13 @@ import Notifications from '../screens/Notifications';
 import SignIn from '../screens/Signin';
 import SignUp from '../screens/Signup';
 import Helps from '../screens/Helps';
-import VendorDetail from '../screens/VendorDetail';
 import Account from '../screens/Account';
-import DropdownPicker from '../widgets/DropdownPicker';
-import Anchor from '../widgets/Anchor';
 import About from '../screens/About';
 import Contact from '../screens/Contact';
 import Menu from '../screens/Menu';
+import MoreMenu from "../widgets/MoreMenu";
 // import Toast from 'react-native-root-toast';
-import { Alert, TouchableOpacity, } from 'react-native';
 import 'react-native-gesture-handler';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import OverlayModal from "../widgets/OverlayModal"
 
 const NativeStack = createNativeStackNavigator();
 
@@ -83,6 +82,7 @@ function reducer(prevState, action) {
             };
     }
 }
+
 
 const init = {
     isLoading: true,
@@ -118,14 +118,34 @@ export default function NativeSatckNavigator() {
                 // In a production app, we need to send some data (usually username, password) to server and get a token
                 // We will also need to handle errors if sign in failed
                 // After getting token, we need to persist the token using `SecureStore`
-                window.sessionStorage.setItem('userToken', data.email)
+                if (Platform.OS === 'web') {
+                    window.sessionStorage.setItem('userToken', data.email)
+                    if (data.email) {
+                        dispatch({ type: 'SIGN_IN', token: data.email });
+                    }
+                } else {
+                    await AsyncStorage.setItem('userToken', data.email);
+                    if (data.email) {
+                        dispatch({ type: 'SIGN_IN', token: data.email });
+                    }
+
+                }
+                console.log(data.email)
                 // In the example, we'll use a dummy token
-                dispatch({ type: 'SIGN_IN', token: data.email });
             },
 
-            signOut: () => {
-                window.sessionStorage.clear();
-                dispatch({ type: 'SIGN_OUT' })
+            signOut: async () => {
+                if (Platform.OS === 'web') {
+                    window.sessionStorage.clear();
+
+                    dispatch({ type: 'SIGN_OUT' })
+                } else {
+                    await AsyncStorage.clear((e) => {
+                        console.log(e)
+                    });
+
+                    dispatch({ type: 'SIGN_OUT' })
+                }
             },
 
             signUp: async data => {
@@ -142,12 +162,13 @@ export default function NativeSatckNavigator() {
         // Fetch the token from storage then navigate to our appropriate place
         const bootstrapAsync = async () => {
             let userToken;
-
             try {
-                //   userToken = await SecureStore.getItemAsync('userToken');
-                userToken = await window.sessionStorage.getItem('userToken');
-                console.log(userToken)
-
+                if (Platform.OS === 'web') {
+                    userToken = window.sessionStorage.getItem('userToken');
+                } else {
+                    userToken = await AsyncStorage.getItem("userToken");
+                }
+                console.log(JSON.parse(userToken))
             } catch (e) {
                 // Restoring token failed
                 console.log(e)
@@ -156,7 +177,7 @@ export default function NativeSatckNavigator() {
 
             // This will switch to the App screen or Auth screen and this loading
             // screen will be unmounted and thrown away.
-            dispatch({ type: 'RESTORE_TOKEN', token: userToken });
+            dispatch({ type: 'RESTORE_TOKEN', token: JSON.parse(userToken) });
         };
 
         bootstrapAsync();
@@ -172,112 +193,10 @@ export default function NativeSatckNavigator() {
                         <NativeStack.Group>
                             <NativeStack.Screen
                                 name='Home'
-                                // component={DrawerNavigator}
-                                component={Home}
-                                options={({ navigation: { navigate } }) => ({
-                                    title: '',
-                                    headerShown: true,
-                                    // headerTitle: (props) => <LogoTitle {...props} />,
-                                    // headerLeft:(props)=>(<LogoTitle {...props} />),
-                                    headerLeft: () => (
-                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                            <TouchableHighlight
-                                                activeOpacity={0.9}
-                                                underlayColor="#DDDDDD"
-                                                onPress={() => window.location.reload()}
-                                                style={style.button}><Text style={{ fontWeight: 'bold' }}>KULWEK</Text></TouchableHighlight>
-
-                                            {
-                                                !isMobile && (
-                                                    <>
-                                                        <TouchableHighlight
-                                                            activeOpacity={0.9}
-                                                            underlayColor="#DDDDDD"
-                                                            onPress={() => navigate('About')}
-                                                            style={style.button}><Text>About</Text></TouchableHighlight>
-
-                                                        <TouchableHighlight
-                                                            activeOpacity={0.9}
-                                                            underlayColor="#DDDDDD"
-                                                            onPress={() => navigate('Contact')}
-                                                            style={style.button}><Text>Contact</Text></TouchableHighlight>
-
-                                                        <TouchableHighlight
-                                                            activeOpacity={0.9}
-                                                            underlayColor="#DDDDDD"
-                                                            // onPress={() => alert('This is a button!')}
-                                                            style={style.button}><Anchor href="https://google.com">Blog</Anchor></TouchableHighlight>
-                                                    </>)
-                                            }
-                                        </View>
-                                    ),
-
-                                    headerRight: () => (
-                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-
-                                            {
-
-                                                !isMobile &&
-                                                (<>
-                                                    <TouchableHighlight
-                                                        activeOpacity={0.9}
-                                                        underlayColor="#DDDDDD"
-                                                        onPress={() => { navigate('Signin', {}) }}
-                                                        title='info'
-                                                        style={style.buttonDesktop}>
-                                                        <Text>Sign in</Text>
-                                                    </TouchableHighlight>
-
-                                                    <TouchableHighlight
-                                                        activeOpacity={0.9}
-                                                        underlayColor="#DDDDDD"
-                                                        onPress={() => {
-                                                            authContext.signOut();
-                                                            navigate('Home', {})
-                                                            // Toast.show('Sign ou successful.', {
-                                                            //     duration: Toast.durations.SHORT,
-                                                            // }); 
-                                                        }}
-                                                        style={style.buttonDesktop}>
-                                                        <Text>Sign out</Text>
-                                                    </TouchableHighlight>
-                                                </>)
-
-                                            }
-
-                                            {
-                                                (() => {
-                                                    const overlayBody = (
-                                                        <>
-                                                            <TouchableHighlight
-                                                                activeOpacity={0.9}
-                                                                underlayColor="#DDDDDD"
-                                                                onPress={() => { navigate('Signin', {}) }}
-                                                                title='info'
-                                                                >
-                                                                <Text style={style.overlayButton}>Sign in</Text>
-                                                            </TouchableHighlight>
-
-                                                            <TouchableHighlight
-                                                                activeOpacity={0.9}
-                                                                underlayColor="#DDDDDD"
-                                                                onPress={() => {
-                                                                    authContext.signOut();
-                                                                    navigate('Home', {})
-                                                                    // Toast.show('Sign ou successful.', {
-                                                                    //     duration: Toast.durations.SHORT,
-                                                                    // }); 
-                                                                }}>
-                                                                <Text style={style.overlayButton}>Sign out</Text>
-                                                            </TouchableHighlight>
-                                                        </>
-                                                    );
-                                                    return isMobile && (<OverlayModal overlayBody={overlayBody}  />)
-                                                })()
-                                            }
-                                            {/* <DropdownPicker navigate={navigate} /> */}
-                                        </View>)
-                                })}
+                                component={HomeDrawer}
+                                options={{
+                                    headerShown: false,
+                                }}
                             />
                             {/* Mount these components below when it is desktop */}
                             <NativeStack.Screen name="Signin" component={SignIn} />
@@ -292,7 +211,7 @@ export default function NativeSatckNavigator() {
                                     name="Root"
                                     component={BottomTabNavigator}
                                     options={({ navigation, route }) => ({
-                                        title: 'Kulwek',
+                                        title: '',
                                         headerTitleAlign: 'center',
                                         headerStyle: {
                                             backgroundColor: "#ffffff" //'#f4511e',
@@ -305,7 +224,7 @@ export default function NativeSatckNavigator() {
                                         headerLeft: () => (
                                             <TextInput
                                                 placeholder=" Search ..."
-                                                style={{ borderWidth: 0.5, borderRadius: 10, height: 35, width: 120, margin: 5, opacity: 0.6, }}
+                                                style={{ borderWidth: 0.5, borderRadius: 10, height: 35, width: 170, margin: 5, opacity: 0.6, }}
                                                 // value={text}
                                                 onFocus={() => navigation.navigate("Search")} />
                                         ),
@@ -316,19 +235,19 @@ export default function NativeSatckNavigator() {
                                                     onPress={() => isLoggedIn ? navigation.navigate('Notifications') : navigation.navigate('signin')}
                                                     title='info'
                                                     style={style.button}><Text><MaterialIcons name="notifications-none" size={20} /></Text></Pressable>
+                                                
                                                 <Pressable
                                                     onPress={() => navigation.navigate('Account')}
                                                     title='info'
                                                     style={style.button}><Text><MaterialIcons name="person-outline" size={20} /></Text></Pressable>
-                                                <Pressable
-                                                    onPress={authContext.signOut}
-                                                    title='Log out'
-                                                    style={style.button}><Text><MaterialIcons name="logout" size={20} /></Text></Pressable>
-
-                                                <Pressable
+                                                
+                                                {(()=>{
+                                                    return<MoreMenu navigation={navigation}/>;
+                                                })()}
+                                                {/* <Pressable
                                                     onPress={() => navigation.navigate('Menu')}
                                                     title='Log out'
-                                                    style={style.button}><Text><MaterialIcons name="menu" size={20} /></Text></Pressable>
+                                                    style={style.button}><Text><MaterialIcons name="menu" size={20} /></Text></Pressable> */}
 
                                             </View>
                                         ),
@@ -383,7 +302,6 @@ export default function NativeSatckNavigator() {
                                 style={style.button}><Text>Help</Text></Pressable>
                         })}
                     />
-                    <NativeStack.Screen name='Vendordetail' component={VendorDetail} options={{ title: 'Vendor Detail' }} />
                     <NativeStack.Screen
                         name='Profile'
                         component={Profile}
@@ -430,7 +348,13 @@ export default function NativeSatckNavigator() {
                     <NativeStack.Screen name='Contact' component={Contact} />
                     <NativeStack.Screen name='About' component={About} />
                     <NativeStack.Screen name='Menu' component={Menu} />
-
+                    <NativeStack.Screen
+                        name='Dashboard'
+                        component={DashboardDrawer}
+                        options={{
+                            header: () => false,
+                        }}
+                    />
                     {/* <NativeStack.Screen name="Home">
                        {props => <Home {...props} extraData={someData} />}
                      </NativeStack.Screen> */}
@@ -455,10 +379,10 @@ const style = StyleSheet.create({
         marginRight: 5,
         padding: 2
     },
-    overlayButton:{
-        margin:5,
+    overlayButton: {
+        margin: 5,
         backgroundColor: 'blue',
-        color:'white',
-        padding: 10 
+        color: 'white',
+        padding: 10
     }
 })

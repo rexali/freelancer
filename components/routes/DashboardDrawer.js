@@ -1,27 +1,40 @@
 import * as React from 'react';
-import { View, Text, Button, useWindowDimensions } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import {
+  Text,
+  useWindowDimensions,
+  TouchableHighlight,
+} from 'react-native';
+
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
   DrawerItemList,
   DrawerItem,
 } from '@react-navigation/drawer';
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { AuthContext } from './NativeStackNavigator';
 
-import Home from "../screens/Home";
-import About from "../screens/About";
-import Contact from "../screens/Contact";
-import Projects from "../screens/Projects";
-import Notifications from "../screens/Notifications";
-import Feed from "../screens/Feed";
+
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import MaterialTopTab from "./MaterialTopTab";
 
 function CustomDrawerContent(props) {
   return (
     <DrawerContentScrollView {...props}>
-      
+
       <DrawerItemList {...props} />
 
+      {/* <DrawerItem
+        label="KULWEK"
+        onPress={() => props.navigation.closeDrawer()}
+      /> */}
+
+      <DrawerItem
+        label="Profile"
+        onPress={() => {
+          props.navigation.navigate("Profile");
+          props.navigation.closeDrawer()
+        }}
+      />
       <DrawerItem
         label="Notifications"
         onPress={() => props.navigation.closeDrawer()}
@@ -36,14 +49,6 @@ function CustomDrawerContent(props) {
       />
       <DrawerItem
         label="Search"
-        onPress={() => props.navigation.closeDrawer()}
-      />
-      <DrawerItem
-        label="Dashboard"
-        onPress={() => props.navigation.closeDrawer()}
-      />
-      <DrawerItem
-        label="Profile"
         onPress={() => props.navigation.closeDrawer()}
       />
       <DrawerItem
@@ -86,60 +91,43 @@ function CustomDrawerContent(props) {
   );
 }
 
-import { getHeaderTitle } from '@react-navigation/elements';
-import { TouchableHighlight } from 'react-native-gesture-handler';
-
-function MyHeader({ title, ...props }) {
-  return <View style={{ flexDirection: 'row' }}><Text>{title}</Text><Text>Setting</Text></View>
-}
-
-const Drawer = createDrawerNavigator();
+const DashboardDrawer = createDrawerNavigator();
 
 export default function DrawerNavigator() {
-
+  const { signOut } = React.useContext(AuthContext);
   const dimensions = useWindowDimensions();
-
   const isLargeScreen = dimensions.width >= 768;
   const isLoggedIn = true;
 
   return (
-    <Drawer.Navigator
-      drawerContent={(props) => <CustomDrawerContent {...props}/>}
+    <DashboardDrawer.Navigator
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
-        // drawerStyle: {
-        //   backgroundColor: 'red',
-        //   width: 240,
-        // },
-        // header: ({ navigation, route, options }) => {
-        //   const title = getHeaderTitle(options, route.name);
-        //   return <MyHeader title={title} style={options.headerStyle} />;
-        // },
-        headerShown:false,
-        drawerPosition:'left',
+        drawerPosition: 'left',
       }} >
-      <Drawer.Screen
-        name="Kulwek"
-        component={Home}
-        options={({navigation:{navigate}})=>({
+      <DashboardDrawer.Screen
+        name="KULWEK"
+        component={MaterialTopTab}
+        options={({ navigation }) => ({
           // drawerPosition: 'left',
-          drawerType: isLargeScreen? 'permanent':'front',
-          headerShown:false,
-          headerTitleAlign: 'center',
+          title:'',
+          drawerType: isLargeScreen ? 'permanent' : 'front',
+          headerShown: true,
+          headerTitleAlign: isLargeScreen ? 'left' : 'center',
+          drawerLabel: () => <Text>KULWEK</Text>,
+          drawerIcon: () => null,
+          headerLeft:()=> !isLargeScreen && <MaterialIcons name="menu" size={25} onPress={()=>navigation.toggleDrawer()} />,
           headerRight: () => (
             <TouchableHighlight
               style={{ margin: 5 }}
               activeOpacity={0.9}
               underlayColor="#DDDDDD"
-              onPress={() => isLoggedIn ? navigate('Account') : navigate('Signin', { page: 'Account' })}
+              onPress={() => { signOut(); navigation.navigate("Home", {}) }}
             >
-              <MaterialIcons name="person-outline" size={20} />
+              <Text>{isLargeScreen ? "Logout" : <MaterialIcons name="logout" size={20} />}</Text>
             </TouchableHighlight>)
         })} />
-      <Drawer.Screen name="About" component={About} />
-      <Drawer.Screen name="Contact" component={Contact} />
-      <Drawer.Screen name="Notification" component={Notifications} />
-      <Drawer.Screen name="Projects" component={Projects} />
-      <Drawer.Screen name="Feed" component={Feed} />
-    </Drawer.Navigator>
+      {/* Another screen here */}
+    </DashboardDrawer.Navigator>
   );
 }

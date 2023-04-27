@@ -10,131 +10,94 @@ import {
   StatusBar,
   SectionList,
   Pressable,
+  Platform,
   ActivityIndicator,
   TextInput,
 } from "react-native";
 import '@expo/match-media'
-import { useMediaQuery } from "react-responsive";
+import { useMediaQuery, } from "react-responsive";
 import {
   useQuery,
   gql
 } from "@apollo/client";
 
-import FreelancerCardItem from "../widgets/FreelancerCardItem";
+import ServiceCardItem from "../widgets/ServiceCardItem";
 import FreelancerCardDetail from '../widgets/FreelancerCardDetail';
 import FreelancerCardList from '../widgets/FreelancerCardList'
 import Coding from "../coding";
 import colors from "../../utils/colors";
-const EXCHANGE_RATES = gql`
-query GetExchangeRates {
-  rates(currency: "USD") {
-    currency
-    rate
-  }
-  freelancers {
-          id
-          firstname
-          lastname
-          occupation
-          phone
+
+const GET_SERVICES = gql`
+query GetServiceSection{
+  getServiceSection {
+    title
+    data {
+      id
+      title
+      category
+      subcategory
+      picture
+      description
+      charge
+      delivery_period
+      search_tag
+      hourly_rate
+      addons {
+        title
+        charge
+      }
+      user{
+        firstname
+        lastname
+        email
+        addresses{
+          local_govt
           state
-          country
         }
-}
-`;
-
-function ExchangeRates() {
-
-  const { loading, error, data, networkStatus, fetchMore } = useQuery(EXCHANGE_RATES, { errorPolicy: 'all' });
-
-  if (loading) return <View><ActivityIndicator size="large" /></View>  //<View ><Text>Loading...</Text></View>;
-
-  if (error) return <View><Text>Error :(</Text></View>;
-
-  return data.rates.map(({ currency, rate }) => (
-    <View key={currency}>
-      <Text>
-        {currency}: {rate}
-      </Text>
-    </View>
-  ));
-}
-
-// for section list rendering
-const productByCategory = (products) => {
-  // let products=[{product_id:1,product_category:"monitor",product_name:"electronic"}]
-  let sectiondata = [];
-  let category = Array.from(new Set(products.map((item) => item.occupation)));
-  category.forEach((item) => {
-    sectiondata.push({
-      title: item,
-      data: [...products.filter(product => product.occupation === item)].slice(0, 2)
+      }
     }
-    );
-  });
-
-  return sectiondata;
-}
+  }
+}`;
 
 
 function Home({ navigation }) {
-  // const isMounted = React.useRef(true);
-  // React.useEffect(() => {
-  //   if (isMounted.current) {
-  //     // fetch data
-  //     return () => {
-  //       isMounted.current = false;
-  //     };
-  //   }
-  // });
 
   const isMobile = useMediaQuery({ maxDeviceWidth: 1023 }); // {query: "(max-device-width: 1224px)"}
-  const { loading, error, data, networkStatus, fetchMore } = useQuery(EXCHANGE_RATES);
 
-  const renderItem = ({ item: { firstname, lastname, state, charge, phone, country, id } }) => {
-    return (
-      <FreelancerCardItem
-        name={firstname + ', ' + lastname}
-        location={state + ', ' + country}
-        price={charge}
-        navigation={navigation}
-        id={id}
-        phone={phone}
-        data={data}
-      />
-    )
-  }
-
+  const {
+    loading,
+    error,
+    data,
+    networkStatus,
+    fetchMore
+  } = useQuery(GET_SERVICES, { errorPolicy: 'all' });
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      margin: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
       marginTop: StatusBar.currentHeight || 0,
     },
-
     header: {
-      fontSize: 16,
+      fontSize: 14,
       backgroundColor: "#ffffff",
-      marginHorizontal: 10
+      marginHorizontal: 10,
+      borderRadius: 10,
     },
-
     title: {
       fontSize: 24
     },
-
     row: {
       margin: 10,
       flexDirection: isMobile ? 'column' : 'row',
     },
-
     rowItem: {
       flex: 1,
       marginBottom: 10,
     },
-
     viewmore: {
-      textAlign: 'container',
+      textAlign: 'center',
       color: 'white',
       marginBottom: 5,
       padding: 10,
@@ -143,219 +106,140 @@ function Home({ navigation }) {
     }
   });
 
-  if (loading) return <View style={styles.container}><ActivityIndicator size="large" /></View>
+  const renderServiceCardItem = ({ item }) => {
 
-  if (error) return <View style={styles.container}><Text>Error : ( {error.message} )</Text></View>;
+    return (
+      <ServiceCardItem
+        name={item.title}
+        location={item.user.addresses[0]?.state}
+        price={item?.charge}
+        navigation={navigation}
+        id={item.id}
+        data={item}
+      />
+    )
+  }
+
+  if (loading) return <View style={styles.container}><Text><ActivityIndicator size="large" /> LOADING... </Text></View>;
+
+  if (error) return <View style={styles.container}><Text>Error : ( {error.extraInfo} )</Text></View>;
+
+  if (Platform.OS === 'web') {
+
+    return (
+      <SafeAreaView style={styles.container}>
+        <TextInput
+          placeholder=" Search ..."
+          style={{ borderWidth: 1, marginTop: 10, borderRadius: 10, height: 35, width: 360, margin: 'auto', opacity: 0.6, }}
+          onFocus={() => navigation.navigate("Search")}
+        />
+        <View style={styles.row}>
+          <View style={styles.rowItem}>
+            <Text>Filter by category</Text>
+            <Text>Web designing 👋</Text>
+            <Text>Data science 👋</Text>
+            <Text>Graphic designing 👋</Text>
+            <Text>Web editing and maintenance👋</Text>
+            <Text>Artificial Intelligence 👋</Text>
+            <Text>Web designing 👋</Text>
+            <Text>Data science 👋</Text>
+            <Text>Graphic designing 👋</Text>
+            <Text>Web editing and maintenance👋</Text>
+            <Text>Artificial Intelligence 👋</Text>
+          </View>
+
+          <View style={styles.rowItem}>
+            <Text>Filter by category</Text>
+            <Text>Web designing 👋</Text>
+            <Text>Data science 👋</Text>
+            <Text>Graphic designing 👋</Text>
+            <Text>Web editing and maintenance👋</Text>
+            <Text>Artificial Intelligence 👋</Text>
+            <Text>Web designing 👋</Text>
+            <Text>Data science 👋</Text>
+            <Text>Graphic designing 👋</Text>
+            <Text>Web editing and maintenance👋</Text>
+            <Text>Artificial Intelligence 👋</Text>
+          </View>
+        </View>
+
+        <View style={styles.row}>
+          <View style={styles.rowItem}>
+
+            {/* <Text style={{ backgroundColor: 'blue', borderBottomWidth: 1, marginBottom: 10, width: 180 }}></Text> */}
+            <Text>Filter by category</Text>
+            <Text>Web designing 👋</Text>
+            <Text>Data science 👋</Text>
+            <Text>Graphic designing 👋</Text>
+            <Text>Web editing and maintenance👋</Text>
+            <Text>Artificial Intelligence 👋</Text>
+            <Text>Web designing 👋</Text>
+            <Text>Data science 👋</Text>
+            <Text>Graphic designing 👋</Text>
+            <Text>Web editing and maintenance👋</Text>
+            <Text>Artificial Intelligence 👋</Text>
+          </View>
+
+          <View style={styles.rowItem}>
+            <Text>Filter by category</Text>
+            {/* <Text style={{ backgroundColor: 'blue', borderBottomWidth: 1, marginBottom: 10, width: 180 }}></Text> */}
+            <Text>Web designing 👋</Text>
+            <Text>Data science 👋</Text>
+            <Text>Graphic designing 👋</Text>
+            <Text>Web editing and maintenance👋</Text>
+            <Text>Artificial Intelligence 👋</Text>
+            <Text>Web designing 👋</Text>
+            <Text>Data science 👋</Text>
+            <Text>Graphic designing 👋</Text>
+            <Text>Web editing and maintenance👋</Text>
+            <Text>Artificial Intelligence 👋</Text>
+          </View>
+        </View>
+
+        <View style={styles.row}>
+
+          {/* <ExchangeRates /> */}
+          <FlatList
+            extraData={[isMobile]}
+            data={data?.getServiceSection}
+            renderItem={renderServiceCardItem}
+            keyExtractor={(item, index) => item.id + new String(index)}
+            initialNumToRender={3}
+            horizontal={true}
+            ListHeaderComponent={() => (
+              <View><Text>Featured offers</Text></View>
+            )}
+            ListEmptyComponent={() =>
+              <View><Text>No featured offers</Text></View>
+            }
+            ListFooterComponent={() => <View style={{ marginLeft: 20 }}><Button title={`See all`} /></View>}
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* mobile view */}
-
-      <View style={styles.row}>
-        <View style={styles.rowItem}>
-          <Text>Filter by category</Text>
-          <Text>Web designing 👋</Text>
-          <Text>Data science 👋</Text>
-          <Text>Graphic designing 👋</Text>
-          <Text>Web editing and maintenance👋</Text>
-          <Text>Artificial Intelligence 👋</Text>
-          <Text>Web designing 👋</Text>
-          <Text>Data science 👋</Text>
-          <Text>Graphic designing 👋</Text>
-          <Text>Web editing and maintenance👋</Text>
-          <Text>Artificial Intelligence 👋</Text>
-        </View>
-
-        <View style={styles.rowItem}>
-          <Text>Filter by category</Text>
-          <Text>Web designing 👋</Text>
-          <Text>Data science 👋</Text>
-          <Text>Graphic designing 👋</Text>
-          <Text>Web editing and maintenance👋</Text>
-          <Text>Artificial Intelligence 👋</Text>
-          <Text>Web designing 👋</Text>
-          <Text>Data science 👋</Text>
-          <Text>Graphic designing 👋</Text>
-          <Text>Web editing and maintenance👋</Text>
-          <Text>Artificial Intelligence 👋</Text>
-        </View>
-      </View>
-
-      <View style={styles.row}>
-        <View style={styles.rowItem}>
-          {/* <Text style={{ backgroundColor: 'blue', borderBottomWidth: 1, marginBottom: 10, width: 180 }}></Text> */}
-          <Text>Filter by category</Text>
-          <Text>Web designing 👋</Text>
-          <Text>Data science 👋</Text>
-          <Text>Graphic designing 👋</Text>
-          <Text>Web editing and maintenance👋</Text>
-          <Text>Artificial Intelligence 👋</Text>
-          <Text>Web designing 👋</Text>
-          <Text>Data science 👋</Text>
-          <Text>Graphic designing 👋</Text>
-          <Text>Web editing and maintenance👋</Text>
-          <Text>Artificial Intelligence 👋</Text>
-        </View>
-
-        <View style={styles.rowItem}>
-          <Text>Filter by category</Text>
-          {/* <Text style={{ backgroundColor: 'blue', borderBottomWidth: 1, marginBottom: 10, width: 180 }}></Text> */}
-          <Text>Web designing 👋</Text>
-          <Text>Data science 👋</Text>
-          <Text>Graphic designing 👋</Text>
-          <Text>Web editing and maintenance👋</Text>
-          <Text>Artificial Intelligence 👋</Text>
-          <Text>Web designing 👋</Text>
-          <Text>Data science 👋</Text>
-          <Text>Graphic designing 👋</Text>
-          <Text>Web editing and maintenance👋</Text>
-          <Text>Artificial Intelligence 👋</Text>
-        </View>
-      </View>
-
-      <View style={styles.row}>
-        <FlatList
-          extraData={[isMobile]}
-          data={data?.freelancers.slice(0, 3)}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          initialNumToRender={3}
-          horizontal={true}
-          ListHeaderComponent={() => (
-            <View><Text>Featured offers</Text></View>
-          )}
-          ListEmptyComponent={() =>
-            <View><Text>No featured offers</Text></View>
-          }
-          ListFooterComponent={() => <View style={{ marginLeft: 20 }}><Button title={`See all`} /></View>}
-          showsHorizontalScrollIndicator={false}
-        />
-      </View>
-
+      <SectionList
+        sections={data.getServiceSection}
+        inverted={false}
+        extraData={[isMobile]}
+        initialNumToRender={1}
+        stickySectionHeadersEnabled={true}
+        keyExtractor={(item, index) => item + index}
+        renderItem={renderServiceCardItem}      //{({ item }) => <Item title={item} />}
+        renderSectionFooter={({ section: { title } }) => <View style={{ alignItems: 'center' }}><Pressable style={{ backgroundColor: 'brown', maxWidth: 180, borderRadius: 10, }} onPress={() => navigation.navigate("Offers", { title: title })}><Text style={styles.header, styles.viewmore} numberOfLines={1}>View more {title.toLowerCase()}</Text></Pressable></View>}
+        renderSectionHeader={({ section: { title } }) => (
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Pressable onPress={() => navigation.navigate("Offers", { title: title })}><Text style={styles.header}>{title}</Text></Pressable>
+            <Pressable onPress={() => navigation.navigate("Offers", { title: title })}><Text style={styles.header}>view all</Text></Pressable>
+          </View>
+        )}
+      />
     </SafeAreaView>
-  )
+  );
 }
-
-// return (
-//   <SafeAreaView>
-//     {/* desktop view */}
-//     <TextInput
-//       placeholder=" Search ..."
-//       style={{ borderWidth: 1, marginTop:10, borderRadius: 10, height: 35, width: 360, margin: 'auto', opacity: 0.6, }}
-//       onFocus={() => navigation.navigate("Search")} 
-//       />
-
-//     <View style={{ flexDirection: 'row' }}>
-
-//        <View style={{ flex: 5, alignItems: 'flex-start', justifyContent: 'container', marginLeft: 10 }}>
-//        {/* <FlatList
-//           extraData={[isMobile]}
-//           data={data?.freelancers.slice(0, 3)}
-//           renderItem={renderItem}
-//           keyExtractor={(item) => item.id}
-//           initialNumToRender={3}
-//           horizontal={true}
-//           ListHeaderComponent={() => (
-//             <View><Text>Featured offers</Text></View>
-//           )}
-//           ListEmptyComponent={() =>
-//             <View><Text>No featured offers</Text></View>
-//           }
-//           ListFooterComponent={() => <View style={{ marginLeft: 20 }}><Button title={`See all`} /></View>}
-//           showsHorizontalScrollIndicator={false}
-//         />
-
-//         <FlatList
-//           extraData={[isMobile]}
-//           data={data?.freelancers.slice(0, 3)}
-//           renderItem={renderItem}
-//           keyExtractor={(item) => item.id}
-//           initialNumToRender={1}
-//           horizontal={true}
-//           ListHeaderComponent={() =>
-//             <View><Text>Popular categories</Text></View>
-//           }
-//           ListEmptyComponent={() =>
-//             <View><Text>No featured popular categories yet</Text></View>
-//           }
-//           ListFooterComponent={() => <View><Button title={`See all`} /></View>}
-//           showsHorizontalScrollIndicator={false}
-//         />
-
-//         <FlatList
-//           extraData={[isMobile]}
-//           data={data?.freelancers.slice(0, 3)}
-//           renderItem={renderItem}
-//           keyExtractor={(item) => item.id}
-//           initialNumToRender={1}
-//           horizontal={true}
-//           ListHeaderComponent={() =>
-//             <View><Text>Popular freelancers</Text></View>
-//           }
-//           ListEmptyComponent={() =>
-//             <View><Text>No featured popular freelancer yet</Text></View>
-//           }
-//           ListFooterComponent={() => <View><Button title={`See all`} /></View>}
-//           showsHorizontalScrollIndicator={false}
-//         />
-
-{/* <SectionList
-          sections={productByCategory(data?.freelancers)}
-          inverted={false}
-          extraData={[isMobile]}
-          initialNumToRender={1}
-          stickySectionHeadersEnabled={true}
-          keyExtractor={(item, index) => item + index}
-          renderItem={renderItem}      //{({ item }) => <Item title={item} />}
-          renderSectionFooter={({ section: { title } }) => <View style={{ alignItems: 'container' }}><Pressable style={{ backgroundColor: 'brown', maxWidth: 180, borderRadius: 10, }} onPress={() => navigation.navigate("Offers", { title: title })}><Text style={styles.header, styles.viewmore} numberOfLines={1}>View more {title.toLowerCase()}</Text></Pressable></View>}
-          renderSectionHeader={({ section: { title } }) => (
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Pressable onPress={() => navigation.navigate("Offers", { title: title })}><Text style={styles.header}>{title}</Text></Pressable>
-              <Pressable onPress={() => navigation.navigate("Offers", { title: title })}><Text style={styles.header}>View All</Text></Pressable>
-            </View>
-          )}
-        /> */}
-{/* <ExchangeRates /> */ }
-
-//         <FlatList
-//           extraData={[isMobile]}
-//           data={[]}
-//           renderItem={renderItem}
-//           keyExtractor={(item) => item.id}
-//           initialNumToRender={1}
-//           horizontal={true}
-//           ListHeaderComponent={() =>
-//             <View><Text>Recommendations</Text></View>
-//           }
-//           ListEmptyComponent={() =>
-//             <View style={{ margin: 30 }}><Text>No recommendations yet</Text></View>
-//           }
-//           ListFooterComponent={() => false && <View><Button title={`See all`} /></View>}
-//           showsHorizontalScrollIndicator={false}
-//         />
-
-//         <FlatList
-//           extraData={[isMobile]}
-//           data={[]}
-//           renderItem={renderItem}
-//           keyExtractor={(item) => item.id}
-//           initialNumToRender={1}
-//           horizontal={true}
-//           ListHeaderComponent={() =>
-//             <View><Text>Recently views</Text></View>
-//           }
-//           ListEmptyComponent={() =>
-//             <View style={{ margin: 50 }}><Text>No recently view item yet</Text></View>
-//           }
-//           ListFooterComponent={() => false && <View><Button title={`See all`} /></View>}
-//           showsHorizontalScrollIndicator={false}
-//         /> */}
-
-//       </View>
-//     </View>
-//   </SafeAreaView>
-// );
-
-
 
 export default Home;

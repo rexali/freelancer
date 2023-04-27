@@ -9,10 +9,7 @@ import {
 } from "react-native";
 import { AuthContext } from "../routes/NativeStackNavigator";
 import { useMediaQuery } from "react-responsive";
-import OverlayModal from "../widgets/OverlayModal";
-import ModalReal from "../widgets/ModalReal";
-import TooltipModal from "../widgets/TooltipModal";
-import DropdownPicker from "../widgets/DropdownPicker";
+import { useNavigation } from "@react-navigation/native";
 
 const Signin = ({ navigation, route }) => {
 
@@ -22,21 +19,11 @@ const Signin = ({ navigation, route }) => {
   const isMobileDevice = useMediaQuery({
     maxDeviceWidth: 1023,// alternatively..// query: "(max-device-width: 1224px)"
   });
-
-  const loggedIn = () => {
-    let logInObj = {
-      email: email,
-      password: password
-    }
-    console.log(logInObj);
-    window.sessionStorage.setItem('user_id', email)
-    window.location.reload();
-    navigation.navigate(route.params.page)
-  }
+  let nav = useNavigation();
 
   return (
     <View style={styles.center}>
-      <Text>This is the sign in screen</Text>
+
       <TextInput
         style={styles.input}
         placeholder="Enter email"
@@ -54,21 +41,13 @@ const Signin = ({ navigation, route }) => {
         secureTextEntry={true}
       />
 
-      {/* <OverlayModal overlayBody={"I am testing you oo, "} />
-      <ModalReal />
-      <TooltipModal toolTipBody={"I am the tool tip"} />
-      <DropdownPicker /> */}
-
-      {/* <Button title="Sign in" onPress={() => loggedIn()} /> */}
       <Button
         title="Sign in"
-        onPress={() => {
-          signIn({ email, password });
-          !isMobileDevice ? 
-          navigation.navigate(route.params.page?route.params.page:'Home', {}) 
-          : () => {
-            navigation.navigate('Home', {}) 
-           }
+        onPress={async () => {
+          await signIn({ email, password });
+          if (Platform.OS === 'web') {
+            nav.navigate(route.params?.page ? route.params?.page : 'Home', {});
+          }
         }} />
       <View>
         <Text>Don't have an account? </Text>
